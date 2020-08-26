@@ -1,0 +1,31 @@
+function test(arr){
+    
+    function testing(obj){
+        return obj;
+    }
+
+    console.log(testing({
+        arr : arr
+    }));
+} 
+
+function test(arr){
+    
+    function testing(arr){
+        
+        console.log(arr);
+        return arr;
+    }
+    console.log(
+        testing(
+            (function(){
+                let c = arr;
+                console.log("+fun:"+arr);
+                console.log("c:"+c);
+                return c;
+            })()
+
+        )
+    );
+    console.log(arr);
+}

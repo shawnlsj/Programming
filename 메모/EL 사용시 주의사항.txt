@@ -1,0 +1,98 @@
+정리 : <script> 안에서 JSTL, EL 을 쓸 수 있는 것은 당연하다.
+
+웹컨테이너는 jsp을 java로 변환하는 중에,
+
+JSTL 과 EL 구문을 만나면,
+
+해당 구문들을 .java 파일에 기술될 특정 메소드의 인자로 넘길 것이고,
+
+메소드가 리턴한 값이
+
+JSTL과 EL구문을 대체 할 뿐이다.
+-> 웹 컨테이너 입장에서는 <script> 태그는 단지 문자열일 뿐이다.
+->따라서 <script> 태그의 존재 유무와 JSTL, EL 구문의 해석은 전혀 별개의 것이기 때문에
+JSTL과 EL 구문이 <script>안에 있든 밖에 있든 작동 원리를 혼동할 이유가 하나도 없다.
+
+
+
+
+JSP의 <script> 태그 안에서 JSTL, EL을 쓸 때 주의할점
+
+ㅡㅡㅡㅡㅡ
+JSP는 처음 호출 되면 [웹 컨테이너]가 
+
+.jsp 파일을 .java 파일로 변환한 후 
+
+컴파일러를 실행시켜 .class 파일로 컴파일 한다.
+ㅡㅡㅡㅡ
+
+
+중요한건 .jsp 파일이 .java 파일로 변환되는 순간인데
+
+jsp파일이 java 파일로 변환되면서 
+
+아래처럼 JSTL의 value 값과 EL 구문은 특정한 메소드에 인자로 넘겨지게 된다.
+
+
+.jsp 파일
+ㅡㅡㅡㅡㅡㅡ
+<c:forEach items="${dto.name77777777777777}" var="item1">
+console.log(3);
+var s = "${dto.name21312312312}";
+var s2 = "${dto.name21312312312}";
+</c:forEach>
+ㅡㅡㅡㅡㅡㅡ
+
+.java 파일
+ㅡㅡㅡㅡㅡㅡ
+if (_jspx_eval_c_005fforEach_005f0 != javax.servlet.jsp.tagext.Tag.SKIP_BODY) {
+          do {
+            out.write("\r\n");
+            out.write("console.log(3);\r\n");
+            out.write("var s = \"");
+            out.write((java.lang.String) org.apache.jasper.runtime.PageContextImpl.proprietaryEvaluate("${dto.name21312312312}", java.lang.String.class, (javax.servlet.jsp.PageContext)_jspx_page_context, null));
+            out.write("\";\r\n");
+            out.write("var s2 = \"");
+            out.write((java.lang.String) org.apache.jasper.runtime.PageContextImpl.proprietaryEvaluate("${dto.name21312312312}", java.lang.String.class, (javax.servlet.jsp.PageContext)_jspx_page_context, null));
+            out.write("\";\r\n");
+            int evalDoAfterBody = _jspx_th_c_005fforEach_005f0.doAfterBody();
+            if (evalDoAfterBody != javax.servlet.jsp.tagext.BodyTag.EVAL_BODY_AGAIN)
+              break;
+          } while (true);
+        }
+
+ _jspx_th_c_005fforEach_005f0.setItems(new org.apache.jasper.el.JspValueExpression("/NewFile.jsp(9,0) '${dto.name77777777777777}'",_jsp_getExpressionFactory().createValueExpression(_jspx_page_context.getELContext(),"${dto.name77777777777777}",java.lang.Object.class)).getValue(_jspx_page_context.getELContext()));
+ㅡㅡㅡㅡㅡ
+
+예를 들어, ForEach문의 begin, end 속성의 value 값이 각각 5, 10 이라 할 때
+
+_jspx_th_c_005fforEach 같은 네이밍 형식을 가진
+
+객체의 .setBegin()과 .setEnd() 메소드의 인자로 넘어가게된다
+ -> _jspx_th_c_005fforEach.setBegin(5);
+ -> _jspx_th_c_005fforEach.setEnd(10);
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+웹 컨테이너가 jsp를 java로 변환하는 과정 중에, EL구문을 만나면
+
+EL구문의 전과 후의 문장을 끊고,
+
+EL구문을 proprietaryEvaluate()라는 메소드의 인자로 넘기는 형식으로 변환한다
+
+
+결과적으로
+<script> 태그의   
+var s = "${dto.name21312312312}";
+이 구문은
+
+ out.write("var s = \"");
+            out.write((java.lang.String) org.apache.jasper.runtime.PageContextImpl.proprietaryEvaluate("${dto.name21312312312}", java.lang.String.class, (javax.servlet.jsp.PageContext)_jspx_page_context, null));
+            out.write("\";\r\n");
+
+이런식으로 변환이된다.
+
+첫번째 out.write 에 var = s" 까지를 인자로 넘기고
+두번째 out.write 는 ${} 구문의 값을 인자로 넘기고 
+세번째 out.write 에 "; 를 인자로 넘긴다.
+

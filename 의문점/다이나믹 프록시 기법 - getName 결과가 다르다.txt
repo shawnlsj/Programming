@@ -1,0 +1,67 @@
+어드바이스 소스
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+@Aspect
+@Component
+public class LogAdvice {
+
+	private static final Logger log = Logger.getLogger(LogAdvice.class);
+
+	@Around("execution(* org.zerock.service.SampleService*.*(..))")
+	public Object logTime(ProceedingJoinPoint pjp) {
+		
+		long start = System.currentTimeMillis();
+		
+		log.info("Tartget : " + pjp.getTarget().getClass().getName());
+		log.info("Param : " + Arrays.toString(pjp.getArgs()));
+		
+		Object result = null;
+		
+		try {
+			result = pjp.proceed();
+			log.info("Tartget2 : " + pjp.getTarget().getClass().getName());
+	
+		} catch(Throwable e) {
+			e.printStackTrace();
+		}
+		long end = System.currentTimeMillis();
+		
+		log.info("TIME: " + (end-start));
+		
+		return result;
+		
+	}
+}
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+테스트 소스
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({ "file:src/main/webapp/WEB-INF/spring/root-context.xml"})
+public class SampleServiceTests {
+
+	private static final Logger log = Logger.getLogger(SampleServiceTests.class);
+	
+	private SampleService service;
+
+	
+	@Autowired
+	public void setService(SampleService service) {
+		this.service = service;
+	}	
+	
+	@Test
+	public void testAdd() throws Exception{
+		log.info(service.doAdd("123", "456"));
+		
+		log.info("test get name : " + service.getClass().getName());
+
+	}	
+	
+}
+
+
+테스트 결과 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+INFO : org.zerock.aop.LogAdvice - Tartget : org.zerock.service.SampleServiceImpl
+INFO : org.zerock.service.SampleServiceTests - test get name : com.sun.proxy.$Proxy22

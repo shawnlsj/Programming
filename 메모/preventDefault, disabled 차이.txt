@@ -1,0 +1,14 @@
+1. preventDefault 
+- 이벤트 객체의 프로퍼티
+- 기본 동작을 막는다
+
+2. disabled 
+- 해당 태그에 대해 어떠한 이벤트도 발생하지 않는다.
+
+
+<button class="b"> button </button>
+<script>
+	var b = document.getElementsByClassName('b');
+	
+	b[0].addEventListener("click",function(e){e.preventDefault(); console.log("ok")});
+</script>
